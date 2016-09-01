@@ -9,38 +9,30 @@ $(document).ready(function() {
     }
   }
   var listo = [];
+
+  // Checks for local storage and repopulates list or creates new list;
   if (supports_html5_storage()) {
-    var supports = true;
-    if (localStorage['listo']) {
-      var savedList = localStorage['listo'];
-      for (var i = 0; i < savedList.length; i++) {
-        listo[i] = savedList[i];
-      }
+    var supportsStorage = true;
+    if (localStorage['listExists']) {
+        var counter = 0;
+        for (var prop in localStorage) {
+          listo[counter].task = prop;
+          listo[counter].id = localStorage[prop];
+          counter++;
+        }
+    }
+    else {
+      localStorage['listo'] = listo;
+      console.log(localStorage['listo']);
     }
   }
-  // Come back here and add saved list to listo on restart
+
   var Task = function(task) {
     this.task = task;
     this.id = 'new';
   };
-  var advanceTask = function(task) {
-    var modified = task.innerText.trim();
-    for (var i = 0; i < listo.length; i++) {
-      if (listo[i].task === modified) {
-        if (listo[i].id = 'new') {
-          listo[i].id = 'inProgress';
-        }
-        else if (listo[i].id = 'inProgress') {
-          listo[i].id = 'archived';
-        }
-        else {
-          listo.splice(i, 1);
-        }
-        break;
-      }
-    }
-    task.remove();
-  };
+
+  // Adds task to list
   var addTask = function(task) {
     if(task) {
       task = new Task(task);
@@ -53,25 +45,50 @@ $(document).ready(function() {
         '<span class="arrow pull-right">' +
         '<i class="glyphicon glyphicon-arrow-right">' +
         '</span></li></a>');
+      }
+      $('#newTaskForm').slideToggle('fast', 'linear');
+      if (supportsStorage) {
+        localStorage[task.task] = task.id;
+        localStorage['listExists'] = "true";
+      }
+    };
+
+  var advanceTask = function(task) {
+    var modified = task.innerText.trim();
+    for (var i = 0; i < listo.length; i++) {
+      if (listo[i].task === modified) {
+        if (listo[i].id = 'new') {
+          listo[i].id = 'inProgress';
+          localStorage[task.task] = "inProgress"
+        }
+        else if (listo[i].id = 'inProgress') {
+          listo[i].id = 'archived';
+          localStorage[task.task] = "archived";
+        }
+        else {
+          listo.splice(i, 1);
+        }
+        break;
+      }
     }
-    $('#newTaskForm').slideToggle('fast', 'linear');
-    if (supports_html5_storage()) {debugger;
-      localStorage['listo'].push({'task': task, 'id': '#item'});
-      console.log(localStorage['listo']);
-    }
+    task.remove();
   };
+
   $('#saveNewItem').on('click', function(e) {
     e.preventDefault();
     var task = $('#newItemInput').val().trim();
     addTask(task);
   });
+
   $('#add-todo').on('click', function() {
     $('#newTaskForm').fadeToggle('fast', 'linear');
   });
+
   $('#cancel').on('click', function(e) {
     e.preventDefault();
     $('#newTaskForm').fadeToggle('fast', 'linear');
   });
+
   $(document).on('click', '#item', function(e) {
     e.preventDefault();
     var task = this;
@@ -79,6 +96,7 @@ $(document).ready(function() {
     this.id = 'inProgress';
     $('#currentList').append(this.outerHTML);
   });
+
   $(document).on('click', '#inProgress', function(e) {
     e.preventDefault();
     var task = this;
@@ -87,20 +105,13 @@ $(document).ready(function() {
     advanceTask(task);
     $('#archivedList').append(changeIcon);
   });
+
   $(document).on('click', '#archived', function(e) {
     e.preventDefault();
     var task = this;
     advanceTask(task);
   });
-  function supports_html5_storage() {
-    try {
-      return 'localStorage' in window && window['localStorage'] !== null;
-    } catch (e) {
-      return false;
-    }
-  }
-  if (supports_html5_storage()) {
 
-  }
+
 
 });
