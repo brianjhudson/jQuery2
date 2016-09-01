@@ -1,6 +1,24 @@
 $(document).ready(function() {
+
   $('#newTaskForm').hide();
+  function supports_html5_storage() {
+    try {
+      return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+      return false;
+    }
+  }
   var listo = [];
+  if (supports_html5_storage()) {
+    var supports = true;
+    if (localStorage['listo']) {
+      var savedList = localStorage['listo'];
+      for (var i = 0; i < savedList.length; i++) {
+        listo[i] = savedList[i];
+      }
+    }
+  }
+  // Come back here and add saved list to listo on restart
   var Task = function(task) {
     this.task = task;
     this.id = 'new';
@@ -26,7 +44,7 @@ $(document).ready(function() {
   var addTask = function(task) {
     if(task) {
       task = new Task(task);
-      listto.push(task);
+      listo.push(task);
       $('#newItemInput').val('');
       $('#newList').append(
         '<a href="#finish" class="" id="item">' +
@@ -36,7 +54,11 @@ $(document).ready(function() {
         '<i class="glyphicon glyphicon-arrow-right">' +
         '</span></li></a>');
     }
-  $('#newTaskForm').slideToggle('fast', 'linear');
+    $('#newTaskForm').slideToggle('fast', 'linear');
+    if (supports_html5_storage()) {debugger;
+      localStorage['listo'].push({'task': task, 'id': '#item'});
+      console.log(localStorage['listo']);
+    }
   };
   $('#saveNewItem').on('click', function(e) {
     e.preventDefault();
@@ -69,7 +91,16 @@ $(document).ready(function() {
     e.preventDefault();
     var task = this;
     advanceTask(task);
-  })
+  });
+  function supports_html5_storage() {
+    try {
+      return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+      return false;
+    }
+  }
+  if (supports_html5_storage()) {
 
+  }
 
 });
