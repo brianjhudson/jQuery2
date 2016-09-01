@@ -65,6 +65,11 @@ $(document).ready(function() {
     advanceTask(task);
     $('#archivedList').append(changeIcon);
   });
+  $(document).on('click', '#archived', function(e) {
+    e.preventDefault();
+    var task = this;
+    advanceTask(task);
+  })
 
 
 });
